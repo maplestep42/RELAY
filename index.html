@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RELAY｜マッチングアプリの「会った後が続かない」に伴走する</title>
+  <meta name="description" content="マッチはする。会える。でも、その先が続かない——。その理由を一緒に言葉にして、続く関係のつくり方を身につける、伴走型のサポートです。">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    /* ============== TOKENS ============== */
+    :root {
+      --bg:        #0c0d11;
+      --bg-soft:   #101218;
+      --surface:   #14161d;
+      --border:    #242832;
+      --border-soft: #1c1f27;
+      --text:      #eef0f3;
+      --text-2:    #c3c7cf;
+      --muted:     #888e99;
+      --accent:    #5be7c4;
+      --accent-soft: rgba(91, 231, 196, 0.10);
+
+      --font-ja:   'Zen Kaku Gothic New', 'Hiragino Kaku Gothic ProN', 'Yu Gothic', sans-serif;
+      --font-mono: 'Space Mono', 'Courier New', monospace;
+
+      --max-w: 680px;
+      --max-w-wide: 1060px;
+      --pad-x: clamp(1.2rem, 4vw, 2rem);
+    }
+
+    /* ============== RESET ============== */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 16px; scroll-behavior: smooth; }
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+    }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-ja);
+      font-weight: 400;
+      line-height: 1.85;
+      letter-spacing: 0.01em;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+    body::before {
+      content: '';
+      position: fixed; inset: 0; z-index: -1; pointer-events: none;
+      background:
+        radial-gradient(120% 70% at 50% -10%, rgba(91,231,196,0.05), transparent 55%),
+        radial-gradient(90% 55% at 88% 105%, rgba(91,231,196,0.03), transparent 60%);
+    }
+    img { display: block; max-width: 100%; }
+    a { color: inherit; text-decoration: none; }
+    :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 3px; }
+    ::selection { background: rgba(91,231,196,0.25); color: var(--text); }
+
+    /* ============== LAYOUT ============== */
+    .container {
+      width: 100%; max-width: var(--max-w);
+      margin-inline: auto; padding-inline: var(--pad-x);
+    }
+    .container--wide { max-width: var(--max-w-wide); }
+
+    .section { padding-block: clamp(3rem, 6.5vw, 5rem); }
+
+    .eyebrow {
+      font-family: var(--font-mono);
+      font-size: 0.68rem; letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--muted);
+      display: inline-flex; align-items: center; gap: 0.65rem;
+      margin-bottom: 1.1rem;
+    }
+    .eyebrow::before { content: ''; width: 1.5rem; height: 1px; background: var(--accent); opacity: 0.7; }
+    .eyebrow--center { justify-content: center; }
+
+    /* ============== TYPE ============== */
+    .h-xl {
+      font-size: clamp(2rem, 6.5vw, 3.5rem);
+      font-weight: 900; line-height: 1.26; letter-spacing: 0.01em;
+      word-break: keep-all; line-break: strict;
+    }
+    .h-xl .hl, .h-xl .soft { white-space: nowrap; }
+    .h-xl .soft { color: var(--text-2); }
+    .h-xl .hl { color: var(--accent); }
+    .h-lg {
+      font-size: clamp(1.55rem, 4vw, 2.2rem);
+      font-weight: 900; line-height: 1.35;
+    }
+    .lede {
+      font-size: clamp(1rem, 2.2vw, 1.12rem);
+      line-height: 1.9; color: var(--text-2);
+      word-break: auto-phrase; /* 文節単位で折り返す（対応外は通常折り返しにフォールバック） */
+      line-break: strict;
+    }
+    .diag-row p, .rung-desc, .principle-h, .principle-p, .faq-a, .voice p, .plan-tag {
+      word-break: auto-phrase; line-break: strict;
+    }
+    .sub { margin-top: 0.9rem; }
+    p.body { color: var(--text-2); }
+    strong { color: var(--text); font-weight: 700; }
+    .accent { color: var(--accent); }
+
+    /* ============== BUTTONS ============== */
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 0.55rem;
+      font-family: var(--font-ja); font-size: 0.96rem; font-weight: 700; letter-spacing: 0.02em;
+      padding: 0.9rem 2rem; border: none; cursor: pointer; border-radius: 999px;
+      transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+    }
+    .btn .arrow { transition: transform 0.25s ease; }
+    .btn:hover .arrow { transform: translateX(4px); }
+    .btn-primary { background: var(--accent); color: #06120e; }
+    .btn-primary:hover, .btn-primary:focus-visible {
+      background: #74efd1; transform: translateY(-2px);
+      box-shadow: 0 10px 30px -12px rgba(91,231,196,0.5);
+    }
+    .btn-ghost { background: transparent; color: var(--text); border: 1px solid var(--border); }
+    .btn-ghost:hover, .btn-ghost:focus-visible { border-color: var(--accent); color: var(--accent); }
+
+    /* ============== REVEAL ============== */
+    .reveal {
+      opacity: 0; transform: translateY(22px);
+      transition: opacity 0.7s cubic-bezier(.2,.6,.2,1), transform 0.7s cubic-bezier(.2,.6,.2,1);
+    }
+    .reveal.in { opacity: 1; transform: none; }
+
+    /* ============== HEADER ============== */
+    .site-header {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(12,13,17,0.72); backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border-soft);
+    }
+    .header-inner { display: flex; align-items: center; justify-content: space-between; padding-block: 0.85rem; }
+    .logo { font-family: var(--font-mono); font-weight: 700; font-size: 1rem; letter-spacing: 0.16em; }
+    .logo span { color: var(--accent); }
+    .header-cta { padding: 0.5rem 1.2rem; font-size: 0.84rem; }
+
+    /* ============== HERO ============== */
+    .hero { padding-top: clamp(3.5rem, 9vw, 6rem); padding-bottom: clamp(3.5rem, 8vw, 5.5rem); }
+    .hero h1 { margin-bottom: 1.6rem; }
+    .hero-sub { max-width: 33em; margin-bottom: 2.2rem; }
+    .hero-actions { display: flex; flex-direction: column; align-items: flex-start; gap: 1rem; }
+    .hero-note { font-size: 0.82rem; color: var(--muted); display: flex; align-items: center; gap: 0.5rem; }
+    .hero-note .dot { width: 5px; height: 5px; border-radius: 50%; background: var(--accent); }
+    @media (min-width: 560px) { .hero-actions { flex-direction: row; align-items: center; } }
+
+    /* ============== DIAGNOSIS ============== */
+    .diag { margin-top: 1.8rem; }
+    .diag-row {
+      display: flex; gap: 1.1rem; align-items: baseline;
+      padding-block: 1.2rem; border-bottom: 1px solid var(--border-soft);
+    }
+    .diag-row:first-child { border-top: 1px solid var(--border-soft); }
+    .diag-mark { color: var(--accent); flex-shrink: 0; }
+    .diag-row p { font-size: clamp(0.98rem, 2.2vw, 1.08rem); font-weight: 500; line-height: 1.6; color: var(--text); }
+    .diag-close { margin-top: 2rem; font-size: clamp(1.05rem, 2.6vw, 1.25rem); font-weight: 700; line-height: 1.7; }
+
+    /* ============== THESIS ============== */
+    .thesis-body { margin-top: 1.5rem; display: grid; gap: 1.1rem; }
+    .pull {
+      margin-top: 2rem; padding: 1.6rem 1.7rem;
+      border-left: 2px solid var(--accent); background: var(--surface);
+      border-radius: 0 14px 14px 0;
+      font-size: clamp(1.02rem, 2.4vw, 1.18rem); font-weight: 700; line-height: 1.7;
+    }
+
+    /* ============== PROCESS LADDER ============== */
+    .ladder { margin-top: 2.2rem; position: relative; }
+    .ladder::before {
+      content: ''; position: absolute; left: 1.3rem; top: 1rem; bottom: 1rem;
+      width: 1px; background: linear-gradient(var(--accent), var(--border) 12%, var(--border)); opacity: 0.5;
+    }
+    .rung {
+      position: relative; display: grid; grid-template-columns: 3.2rem 1fr;
+      gap: 0 1.3rem; padding-block: 1.4rem; align-items: start;
+    }
+    .rung-num {
+      position: relative; z-index: 1;
+      font-family: var(--font-mono); font-size: 0.82rem; font-weight: 700; color: var(--accent);
+      width: 2.6rem; height: 2.6rem;
+      display: flex; align-items: center; justify-content: center;
+      border: 1px solid var(--border); border-radius: 50%; background: var(--bg);
+    }
+    .rung-tag {
+      font-family: var(--font-mono); font-size: 0.62rem; letter-spacing: 0.15em;
+      color: var(--muted); text-transform: uppercase; display: block; margin-bottom: 0.35rem;
+    }
+    .rung-title { font-size: clamp(1.12rem, 2.6vw, 1.32rem); font-weight: 700; margin-bottom: 0.45rem; }
+    .rung-desc { font-size: 0.92rem; color: var(--text-2); line-height: 1.75; }
+    .rung-flag {
+      display: inline-block; margin-top: 0.7rem; font-size: 0.76rem; color: var(--accent);
+      background: var(--accent-soft); padding: 0.3rem 0.8rem; border-radius: 999px;
+    }
+    .ladder-foot {
+      margin-top: 1.8rem; padding: 1.1rem 1.4rem;
+      background: var(--bg-soft); border: 1px solid var(--border-soft); border-radius: 14px;
+      font-size: 0.92rem; color: var(--text-2); line-height: 1.75;
+    }
+
+    /* ============== VOICE ============== */
+    .voice { background: var(--bg-soft); border: 1px solid var(--border-soft); border-radius: 18px; padding: clamp(1.6rem, 4vw, 2.4rem); }
+    .voice .eyebrow { margin-bottom: 1.1rem; }
+    .voice p { color: var(--text-2); font-size: 0.96rem; line-height: 1.9; }
+    .voice p + p { margin-top: 0.9rem; }
+    .voice .sign { margin-top: 1.3rem; font-size: 0.84rem; color: var(--muted); }
+
+    /* ============== PRINCIPLES ============== */
+    .principles { margin-top: 1.6rem; display: grid; gap: 1.3rem; }
+    .principle { display: grid; grid-template-columns: auto 1fr; gap: 0.25rem 1rem; padding-bottom: 1.3rem; border-bottom: 1px solid var(--border-soft); }
+    .principle:last-child { border-bottom: none; padding-bottom: 0; }
+    .principle-check {
+      color: var(--accent); font-size: 0.82rem;
+      width: 1.45rem; height: 1.45rem; display: flex; align-items: center; justify-content: center;
+      border: 1px solid var(--accent); border-radius: 50%; margin-top: 0.2rem;
+    }
+    .principle-h { font-weight: 700; font-size: 1rem; line-height: 1.55; }
+    .principle-p { grid-column: 2; font-size: 0.88rem; color: var(--text-2); line-height: 1.75; }
+
+    /* ============== PRICING ============== */
+    .plans {
+      margin-top: 2rem;
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: clamp(0.5rem, 1.5vw, 1.2rem);
+      align-items: stretch;
+    }
+    .plan {
+      display: flex; flex-direction: column; min-width: 0;
+      color: inherit; text-decoration: none;
+      background: var(--surface); border: 1px solid var(--border); border-radius: 16px;
+      padding: clamp(0.85rem, 2.2vw, 1.8rem) clamp(0.65rem, 1.8vw, 1.6rem);
+      position: relative; transition: transform 0.25s ease, border-color 0.25s ease;
+    }
+    .plan:hover { transform: translateY(-3px); border-color: #34404a; }
+    .plan:hover .plan-cta { color: var(--accent); }
+    .plan-cta {
+      margin-top: auto; padding-top: 1.1rem;
+      font-size: clamp(0.74rem, 1.6vw, 0.86rem); font-weight: 700; color: var(--muted);
+      display: flex; align-items: center; gap: 0.4rem; transition: color 0.2s ease;
+    }
+    .plan.feat .plan-cta { color: var(--accent); }
+    .plan:hover .plan-cta .arrow { transform: translateX(4px); }
+    .plan-cta .arrow { transition: transform 0.25s ease; }
+    .plan.feat { border-color: var(--accent); background: linear-gradient(180deg, rgba(91,231,196,0.05), var(--surface) 40%); }
+    .plan.feat:hover { border-color: var(--accent); }
+    .plan-badge {
+      position: absolute; top: -0.7rem; left: 50%; transform: translateX(-50%);
+      white-space: nowrap;
+      font-size: clamp(0.6rem, 1.5vw, 0.7rem); font-weight: 700; letter-spacing: 0.03em;
+      background: var(--accent); color: #06120e; padding: 0.25rem 0.75rem; border-radius: 999px;
+    }
+    @media (min-width: 760px) { .plan-badge { left: 1.5rem; transform: none; } }
+    .plan-name { font-family: var(--font-mono); font-size: clamp(0.58rem, 1.5vw, 0.68rem); letter-spacing: 0.06em; color: var(--muted); text-transform: uppercase; margin-bottom: 0.45rem; }
+    .plan.feat .plan-name { color: var(--accent); }
+    .plan-tag { font-size: clamp(0.82rem, 2vw, 1.02rem); font-weight: 700; margin-bottom: 0.9rem; line-height: 1.4; }
+    .plan-price { font-size: clamp(1.15rem, 3.2vw, 1.95rem); font-weight: 900; margin-bottom: 0.3rem; letter-spacing: 0.01em; white-space: nowrap; }
+    .plan-price .per { font-size: clamp(0.7rem, 1.6vw, 0.86rem); color: var(--muted); font-weight: 500; }
+    .plan-price .from { font-size: clamp(0.78rem, 1.7vw, 0.95rem); color: var(--muted); font-weight: 500; }
+    .plan-note { font-size: clamp(0.7rem, 1.6vw, 0.8rem); color: var(--muted); line-height: 1.65; margin-bottom: 1.1rem; }
+    .plan hr { border: none; border-top: 1px solid var(--border); margin-bottom: 1.1rem; }
+    .plan-feats { list-style: none; display: grid; gap: 0.6rem; }
+    .plan-feats li { display: flex; gap: 0.55rem; align-items: flex-start; font-size: clamp(0.74rem, 1.7vw, 0.88rem); line-height: 1.6; color: var(--text-2); }
+    .plan-feats li::before { content: '✓'; color: var(--muted); flex-shrink: 0; font-size: 0.78rem; margin-top: 0.15rem; }
+    .plan.feat .plan-feats li::before { color: var(--accent); }
+    .plan-diff { margin-top: 1.2rem; font-size: 0.82rem; color: var(--muted); line-height: 1.75; }
+    .price-foot {
+      margin-top: 1.6rem; padding: 1.1rem 1.4rem;
+      border: 1px dashed var(--border); border-radius: 14px;
+      font-size: 0.85rem; color: var(--text-2); line-height: 1.75; text-align: center;
+    }
+
+    /* ============== FAQ ============== */
+    .faq { margin-top: 1.8rem; }
+    .faq-item { border-bottom: 1px solid var(--border-soft); }
+    .faq-item:first-child { border-top: 1px solid var(--border-soft); }
+    .faq-q {
+      width: 100%; background: none; border: none; color: var(--text);
+      text-align: left; cursor: pointer; padding-block: 1.35rem;
+      display: flex; justify-content: space-between; align-items: center; gap: 1rem;
+      font-family: var(--font-ja); font-size: 0.98rem; font-weight: 700; line-height: 1.55;
+    }
+    .faq-q:hover { color: var(--accent); }
+    .faq-ic { flex-shrink: 0; width: 1.25rem; height: 1.25rem; position: relative; transition: transform 0.3s ease; }
+    .faq-ic::before, .faq-ic::after { content: ''; position: absolute; background: var(--muted); transition: background 0.25s; }
+    .faq-ic::before { top: 50%; left: 0; right: 0; height: 1.5px; transform: translateY(-50%); }
+    .faq-ic::after  { left: 50%; top: 0; bottom: 0; width: 1.5px; transform: translateX(-50%); }
+    .faq-item[open] .faq-ic { transform: rotate(135deg); }
+    .faq-item[open] .faq-ic::before, .faq-item[open] .faq-ic::after { background: var(--accent); }
+    .faq-a { font-size: 0.9rem; color: var(--text-2); line-height: 1.9; padding-bottom: 1.35rem; padding-right: 1.4rem; }
+    details summary { list-style: none; }
+    details summary::-webkit-details-marker { display: none; }
+
+    /* ============== FINAL CTA ============== */
+    .final { text-align: center; padding-block: clamp(3.5rem, 8vw, 6rem); border-top: 1px solid var(--border-soft); }
+    .final h2 { margin-bottom: 1.3rem; }
+    .final .lede { max-width: 34ch; margin-inline: auto; margin-bottom: 2.2rem; }
+    .final .hero-note { justify-content: center; margin-top: 1rem; }
+
+    /* ============== FOOTER ============== */
+    .site-footer { border-top: 1px solid var(--border-soft); padding-block: 2.4rem; }
+    .footer-inner { display: grid; gap: 1.1rem; }
+    .footer-logo { font-family: var(--font-mono); font-size: 0.88rem; font-weight: 700; letter-spacing: 0.14em; }
+    .footer-logo span { color: var(--accent); }
+    .footer-disc { font-size: 0.78rem; color: var(--muted); line-height: 1.85; max-width: 62ch; }
+    .footer-copy { font-family: var(--font-mono); font-size: 0.67rem; color: var(--border); letter-spacing: 0.08em; }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header class="site-header">
+    <div class="container container--wide">
+      <div class="header-inner">
+        <div class="logo">RELAY<span>.</span></div>
+        <a href="#YOUR_FORM_URL_HERE" class="btn btn-ghost header-cta">無料で話してみる</a>
+      </div>
+    </div>
+  </header>
+
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="container">
+      <span class="eyebrow reveal">マッチングアプリ伴走サポート</span>
+      <h1 class="h-xl reveal">マッチはする。<br><span class="soft">会える。</span>でも、<br>その先が<span class="hl">続かない。</span></h1>
+      <p class="lede hero-sub reveal">うまくいかない原因は、たぶんあなたの「価値」じゃありません。まだ言葉にできていないだけの、伸びしろです。それを一緒に見つけて、続く関係のつくり方を身につけていきます。</p>
+      <div class="hero-actions reveal">
+        <a href="#YOUR_FORM_URL_HERE" class="btn btn-primary">まず無料で話してみる <span class="arrow">→</span></a>
+        <span class="hero-note"><span class="dot"></span>オンライン30分・しつこい勧誘はしません</span>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- DIAGNOSIS -->
+  <section class="section" id="diagnosis">
+    <div class="container">
+      <span class="eyebrow reveal">こんな状態じゃないですか</span>
+      <h2 class="h-lg reveal">ひとつでも、心当たりがあれば。</h2>
+      <div class="diag">
+        <div class="diag-row reveal"><span class="diag-mark">—</span><p>月額を払っているのに、最近アプリを開いてすらいない。</p></div>
+        <div class="diag-row reveal"><span class="diag-mark">—</span><p>会うところまではいける。でも、そこから先に進まない。</p></div>
+        <div class="diag-row reveal"><span class="diag-mark">—</span><p>自分のプロフィールが正解なのか、誰にも聞けない。</p></div>
+        <div class="diag-row reveal"><span class="diag-mark">—</span><p>そろそろ結婚も考えたい。でも、何を直せばいいのか分からない。</p></div>
+      </div>
+      <p class="diag-close reveal">どれも、<strong>あなたの才能やスペックが足りないわけじゃありません。</strong>ただ、教わる機会がなかっただけです。</p>
+    </div>
+  </section>
+
+
+  <!-- THESIS -->
+  <section class="section" id="thesis">
+    <div class="container">
+      <span class="eyebrow reveal">考え方</span>
+      <h2 class="h-lg reveal">恋愛は才能じゃなく、練習できる「やり方」です。</h2>
+      <div class="thesis-body">
+        <p class="lede reveal">うまくいかないとき、たいていの人はひとりで悩み続けます。友だちに相談しても、本当のところは言いにくい。アプリにお金を払っても、「どこを直せばいいか」は教えてくれません。</p>
+        <p class="lede reveal">自己流のまま、なんとなく続けて、なんとなく疲れていく。抜け出すのに必要なのは、正しい順番と、外からの素直な視点。それだけです。</p>
+      </div>
+      <blockquote class="pull reveal">「会えている」時点で、ちゃんと伸びしろがあります。あとは、会った後のことを少し知るだけ。</blockquote>
+    </div>
+  </section>
+
+
+  <!-- PROCESS -->
+  <section class="section" id="process">
+    <div class="container">
+      <span class="eyebrow reveal">進め方</span>
+      <h2 class="h-lg reveal">4つのステップで、少しずつ。</h2>
+      <p class="lede sub reveal">いきなり全部は変えません。順番にやれば、ちゃんと積み上がっていきます。</p>
+      <div class="ladder">
+        <div class="rung reveal">
+          <div class="rung-num">01</div>
+          <div>
+            <span class="rung-tag">Profile &amp; Photo</span>
+            <h3 class="rung-title">まず、入口を整える</h3>
+            <p class="rung-desc">プロのカメラマンに出張で撮ってもらい、自己紹介文も一緒に書き直します。「会いたい人に届く入口」をつくるところから。写真と文章が変わるだけで、反応は変わります。</p>
+          </div>
+        </div>
+        <div class="rung reveal">
+          <div class="rung-num">02</div>
+          <div>
+            <span class="rung-tag">Message &amp; Date</span>
+            <h3 class="rung-title">やりとりを、前に進める</h3>
+            <p class="rung-desc">メッセージの流れやデートの組み立てを、一緒に考えます。送るのは、いつもあなた自身。だから経験として残るし、会ったときにズレません。</p>
+            <span class="rung-flag">送信や操作は、すべてご本人が行います</span>
+          </div>
+        </div>
+        <div class="rung reveal">
+          <div class="rung-num">03</div>
+          <div>
+            <span class="rung-tag">Feedback</span>
+            <h3 class="rung-title">デートのあと、振り返る</h3>
+            <p class="rung-desc">よかったところ、足りなかったところを一緒に言葉にします。「なんとなく続かなかった」を、次に活かせる気づきに変えていく時間です。</p>
+          </div>
+        </div>
+        <div class="rung reveal">
+          <div class="rung-num">04</div>
+          <div>
+            <span class="rung-tag">Independence</span>
+            <h3 class="rung-title">最後は、ひとりで動けるように</h3>
+            <p class="rung-desc">目指すのは、サポートがなくても自分で進めるようになること。「もう大丈夫」と思えたら、それが卒業です。ずっと続けてもらうための仕組みではありません。</p>
+          </div>
+        </div>
+      </div>
+      <p class="ladder-foot reveal">そして、どのステップでも<strong>チャットでいつでも相談できます。</strong>「これってどう思う？」を、気軽に聞ける場所です。</p>
+    </div>
+  </section>
+
+
+  <!-- PRICING -->
+  <section class="section" id="pricing">
+    <div class="container container--wide">
+      <span class="eyebrow reveal">料金</span>
+      <h2 class="h-lg reveal">必要なところから、始められます。</h2>
+      <p class="lede sub reveal">途中でプランを変えることもできます。合わないと思ったら、いつでも止められます。</p>
+
+      <div class="plans">
+        <!-- STARTER -->
+        <a class="plan reveal" href="#YOUR_FORM_URL_HERE">
+          <p class="plan-name">Starter ／ 買い切り</p>
+          <p class="plan-tag">まず、入口をつくる</p>
+          <div class="plan-price">¥24,800 <span class="from">〜</span></div>
+          <p class="plan-note">関東エリア：¥24,800（出張撮影の派遣料込み）／関東以外：撮影実費が別途、もしくは ¥49,800</p>
+          <hr>
+          <ul class="plan-feats">
+            <li>プロのカメラマンによる出張撮影（一眼レフ・人物撮影が専門）</li>
+            <li>自己紹介文を一緒に作成</li>
+            <li>「どんな人と会いたいか」のヒアリングと目的設定</li>
+          </ul>
+          <span class="plan-cta">無料相談で相談する <span class="arrow">→</span></span>
+        </a>
+
+        <!-- STANDARD -->
+        <a class="plan feat reveal" href="#YOUR_FORM_URL_HERE">
+          <span class="plan-badge">いちばん人気</span>
+          <p class="plan-name">Standard ／ 月額</p>
+          <p class="plan-tag">自分のペースで、続けられる</p>
+          <div class="plan-price">¥29,800<span class="per">／月</span></div>
+          <p class="plan-note">月ごとに始められて、いつでも止められます</p>
+          <hr>
+          <ul class="plan-feats">
+            <li>メッセージの相談・添削（主要1アプリ・24時間以内に返信）</li>
+            <li>デートの組み立てサポート</li>
+            <li>デート後の振り返り</li>
+            <li>チャットでいつでも相談</li>
+          </ul>
+          <span class="plan-cta">無料相談で相談する <span class="arrow">→</span></span>
+        </a>
+
+        <!-- INTENSIVE -->
+        <a class="plan reveal" href="#YOUR_FORM_URL_HERE">
+          <p class="plan-name">Intensive ／ 月額</p>
+          <p class="plan-tag">結婚に向けて、じっくり伴走</p>
+          <div class="plan-price">¥49,800<span class="per">／月</span></div>
+          <p class="plan-note">目標を、一緒に背負います</p>
+          <hr>
+          <ul class="plan-feats">
+            <li>スタンダードの内容すべて（複数アプリ対応・当日優先で返信）</li>
+            <li>月1回のオンライン戦略ミーティング</li>
+            <li>会話のロールプレイ／模擬デートの練習</li>
+            <li>「月◯件のデート設定」を目標に、一緒にコミット</li>
+          </ul>
+          <p class="plan-diff">スタンダードは「文章を直す」ところまで。インテンシブは「会話の練習」と「目標を一緒に背負う」ところまで踏み込みます。</p>
+          <span class="plan-cta">無料相談で相談する <span class="arrow">→</span></span>
+        </a>
+      </div>
+
+      <div class="price-foot reveal">結婚相談所のような高額な入会金や成婚料はありません。<strong>月額で気軽に始めて、必要なくなれば止められます。</strong></div>
+    </div>
+  </section>
+
+
+  <!-- FINAL CTA -->
+  <section class="final" id="cta">
+    <div class="container">
+      <span class="eyebrow eyebrow--center reveal">はじめの一歩</span>
+      <h2 class="h-lg reveal">「何が悪いのか分からない」を、言葉にするところから。</h2>
+      <p class="lede reveal">30分の無料相談で、今の状況を一緒に整理します。続けるかどうかは、そのあとゆっくり決めてください。</p>
+      <div class="reveal">
+        <a href="#YOUR_FORM_URL_HERE" class="btn btn-primary">まず無料で話してみる <span class="arrow">→</span></a>
+        <span class="hero-note"><span class="dot"></span>オンライン30分・しつこい勧誘はしません</span>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- VOICE -->
+  <section class="section" id="voice">
+    <div class="container">
+      <div class="voice reveal">
+        <span class="eyebrow">運営から、ひとこと</span>
+        <p>正直に書きます。このサービスは「魔法のテクニックで誰でもモテる」みたいなものではありません。うまくいかないのは能力のせいじゃなくて、ただ、まともに教わる場所がなかっただけ——そう感じている人と一緒に、地道にやっていくサービスです。</p>
+        <p>「会った後が続かない」のは、めずらしいことでも、恥ずかしいことでもありません。少し見直すだけで変わる人を、何人も見てきました。まずは気楽に、30分だけ話しにきてください。</p>
+        <p class="sign">— RELAY 運営チーム</p>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- PRINCIPLES -->
+  <section class="section" id="principles">
+    <div class="container">
+      <p class="lede reveal">怪しい代行サービスと混同されたくないので、<strong>やらないこと</strong>もはっきり書いておきます。</p>
+      <div class="principles">
+        <div class="principle reveal">
+          <span class="principle-check">✓</span>
+          <span class="principle-h">あなたのアカウントにログイン・操作することはありません</span>
+          <p class="principle-p">操作はすべてご本人が行います。アプリの規約を守るため、そして何より、あなたの安全のためです。</p>
+        </div>
+        <div class="principle reveal">
+          <span class="principle-check">✓</span>
+          <span class="principle-h">なりすましや、別人を演じることはしません</span>
+          <p class="principle-p">やりとりも、会うのも、いつもご本人です。相手を偽ることは、関係の出発点を壊してしまいます。</p>
+        </div>
+        <div class="principle reveal">
+          <span class="principle-check">✓</span>
+          <span class="principle-h">交際や結婚そのものを「保証」することはしません</span>
+          <p class="principle-p">相手のあることなので、結果は約束できません。私たちが責任を持つのは、ご本人が変えられる行動と設計の部分です。</p>
+        </div>
+        <div class="principle reveal">
+          <span class="principle-check">✓</span>
+          <span class="principle-h">「代わりに恋愛する」サービスではありません</span>
+          <p class="principle-p">目指すのは、あなたが自分の力で動けるようになること。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- FAQ -->
+  <section class="section" id="faq">
+    <div class="container">
+      <span class="eyebrow reveal">よくある質問</span>
+      <h2 class="h-lg reveal">気になるところ、正直に答えます。</h2>
+      <div class="faq">
+        <details class="faq-item reveal">
+          <summary class="faq-q">代わりにメッセージを送ってくれるの？<span class="faq-ic"></span></summary>
+          <p class="faq-a">いいえ。文章の案は一緒に考えますが、送るのは必ずご本人です。やりとりが自分の経験として残るし、実際に会ったときに「メッセージと印象が違う」というズレも起きません。遠回りに見えて、これがいちばんの近道だと思っています。</p>
+        </details>
+        <details class="faq-item reveal">
+          <summary class="faq-q">恋愛経験がほとんどなくても大丈夫？<span class="faq-ic"></span></summary>
+          <p class="faq-a">むしろ向いています。経験が少ない人ほど、最初の設計と振り返りで大きく伸びます。変な癖がついていない分、素直に積み上げられるからです。</p>
+        </details>
+        <details class="faq-item reveal">
+          <summary class="faq-q">必ず結婚できますか？<span class="faq-ic"></span></summary>
+          <p class="faq-a">正直に言うと、保証はできません。相手のあることなので、約束できないんです。ただ、ご本人が変えられる部分——プロフィール、メッセージ、デートの設計と振り返り——を正しく積み上げれば、可能性は確実に上げられます。そこには責任を持ちます。</p>
+        </details>
+        <details class="faq-item reveal">
+          <summary class="faq-q">どのアプリでも使えますか？<span class="faq-ic"></span></summary>
+          <p class="faq-a">主要なマッチングアプリに対応しています。「そもそもどのアプリを使うべきか」という相談から始めてもOKです。目的に合うアプリ選びも、大事な設計の一部です。</p>
+        </details>
+        <details class="faq-item reveal">
+          <summary class="faq-q">無料相談で、強引に契約させられたりしませんか？<span class="faq-ic"></span></summary>
+          <p class="faq-a">しません。無料相談は、まず状況をうかがって、必要があれば提案する場です。合わないと感じたら、その場で終わりにして大丈夫。しつこく連絡することもありません。</p>
+        </details>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- FOOTER -->
+  <footer class="site-footer">
+    <div class="container container--wide">
+      <div class="footer-inner">
+        <div class="footer-logo">RELAY<span>.</span></div>
+        <p class="footer-disc">本サービスは、利用者ご本人によるマッチングアプリの利用を支援・伴走するものです。運営が利用者のアカウントにログイン・操作を代行することはありません。記載の料金・内容は予告なく変更される場合があります。</p>
+        <p class="footer-copy">© 2026 RELAY</p>
+      </div>
+    </div>
+  </footer>
+
+
+  <!-- JS -->
+  <script>
+    (function () {
+      const els = Array.from(document.querySelectorAll('.reveal'));
+      if (!('IntersectionObserver' in window)) { els.forEach(el => el.classList.add('in')); return; }
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          const group = entry.target.parentElement
+            ? Array.from(entry.target.parentElement.querySelectorAll(':scope > .reveal'))
+            : [entry.target];
+          const idx = Math.max(0, group.indexOf(entry.target));
+          entry.target.style.transitionDelay = Math.min(idx * 60, 240) + 'ms';
+          entry.target.classList.add('in');
+          io.unobserve(entry.target);
+        });
+      }, { rootMargin: '0px 0px -6% 0px', threshold: 0.1 });
+      els.forEach(el => io.observe(el));
+    })();
+
+    document.querySelectorAll('.faq-item').forEach((d) => {
+      d.addEventListener('toggle', () => {
+        if (!d.open) return;
+        document.querySelectorAll('.faq-item').forEach((o) => { if (o !== d) o.removeAttribute('open'); });
+      });
+    });
+  </script>
+
+</body>
+</html>

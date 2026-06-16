@@ -141,7 +141,26 @@
     .header-cta { padding: 0.5rem 1.2rem; font-size: 0.84rem; }
 
     /* ============== HERO ============== */
-    .hero { padding-top: clamp(3.5rem, 9vw, 6rem); padding-bottom: clamp(3.5rem, 8vw, 5.5rem); }
+    .hero {
+      padding-top: clamp(3.5rem, 9vw, 6rem); padding-bottom: clamp(3.5rem, 8vw, 5.5rem);
+      position: relative;
+      background:
+        linear-gradient(180deg, rgba(12,13,17,0.50) 0%, rgba(12,13,17,0.72) 62%, var(--bg) 100%),
+        linear-gradient(90deg, rgba(12,13,17,0.92) 0%, rgba(12,13,17,0.55) 52%, rgba(12,13,17,0.32) 100%),
+        url('images/hero.jpg') center / cover no-repeat;
+    }
+    /* 画像セクション共通：上下を背景色になじませ、文字を読みやすく */
+    .bg-photo { position: relative; }
+    #voice {
+      background:
+        linear-gradient(180deg, var(--bg) 0%, rgba(12,13,17,0.80) 16%, rgba(12,13,17,0.80) 84%, var(--bg) 100%),
+        url('images/voice.jpg') center / cover no-repeat;
+    }
+    #cta {
+      background:
+        linear-gradient(180deg, var(--bg) 0%, rgba(12,13,17,0.62) 34%, rgba(12,13,17,0.74) 100%),
+        url('images/cta.jpg') center / cover no-repeat;
+    }
     .hero h1 { margin-bottom: 1.6rem; }
     .hero-sub { max-width: 33em; margin-bottom: 2.2rem; }
     .hero-actions { display: flex; flex-direction: column; align-items: flex-start; gap: 1rem; }
@@ -308,6 +327,7 @@
     .footer-disc { font-size: 0.78rem; color: var(--muted); line-height: 1.85; max-width: 62ch; }
     .footer-copy { font-family: var(--font-mono); font-size: 0.67rem; color: var(--border); letter-spacing: 0.08em; }
   </style>
+  <noscript><style>.reveal{opacity:1!important;transform:none!important;}</style></noscript>
 </head>
 <body>
 
